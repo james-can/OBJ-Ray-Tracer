@@ -1,4 +1,4 @@
-As of now the name of the obj to be rendered as well as output file are hardcoded into main.cpp under the "fname" variable. In the future will add gui options for this. There is currently a model of a dodge viper being rendered included in the "ViperModel" folder. Also to be added, and option to reset and specify a new file without need to reinitialize the program.
+As of now the name of the obj to be rendered as well as output file are hardcoded into main.cpp under the "fname" variable, output image gets saved into "Output" folder. In the future will add gui options for this. There is currently an obj model of a dodge viper as a default, included in the "ViperModel" folder. Also to be added, and option to reset and specify a new file without need to reinitialize the program.
 
 Needs to be run on x86 platform.
 
