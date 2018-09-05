@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFCApplication7", "MFCApplication7\MFCApplication7.vcxproj", "{AD688E85-71F1-4C98-9A49-58A0B0CB0340}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Raytracer", "RayTracer\MFCApplication7.vcxproj", "{AD688E85-71F1-4C98-9A49-58A0B0CB0340}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
