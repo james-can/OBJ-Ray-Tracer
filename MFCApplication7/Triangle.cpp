@@ -41,7 +41,18 @@ glm::vec3 Triangle::getNormal(glm::vec3 intersectionPoint)
 	if (!hasVertNorms)
 		return planeNormal();
 
-	return glm::normalize(alpha * Anorm + beta * Bnorm + gamma * Cnorm);
+	// Check to see if there is too great an angle between vertnorms, to minimize problems around edges
+	// Assuming vertnorms in obj file are already normalized
+	/*float aDotB = glm::dot(Anorm, Bnorm);
+	float bDotC = glm::dot(Bnorm, Cnorm);
+	float cDotA = glm::dot(Cnorm, Anorm);*/
+
+	glm::vec3 normal = normalize(alpha * Anorm + beta * Bnorm + gamma * Cnorm);
+
+	//if (aDotB < .17 || bDotC < .17 || cDotA < .17) // angle is > 80 degrees, so reduce the normal and thus make pixel darker
+	//	normal *= .01f;
+
+	return normal;
 
 
 }
@@ -58,7 +69,7 @@ float Triangle::Intersect(Ray * r) {
 
 	float t;
 	
-	glm::vec3 N = planeNormal();
+	glm::vec3 N = glm::normalize(planeNormal());
 	
 	float NdotRayDirection = glm::dot(N, r->p1);
 

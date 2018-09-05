@@ -22,6 +22,7 @@
 #include "Node.h"
 #include <iomanip>
 #include "OBJ_Loader.h"
+#include <direct.h>
 
 
 
@@ -210,6 +211,7 @@ void renderImage(BYTE **pix) {
 		free(pix[i]);
 	}
 	free(pix);
+	mkdir("Output");
 	FreeImage_Initialise();
 	FIBITMAP *img = FreeImage_ConvertFromRawBits(pixels, width, height, width * 3, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
 	FreeImage_Save(FIF_PNG, img, ("output\\" + fname + ".png").c_str(), 0);
@@ -280,7 +282,7 @@ glm::vec3 FindColor(Intersection * i, int currentDepth) {
 	vec3 mypos = i->intersectPoint;
 	vec3 eyedirn = normalize(i->rayOrigin - mypos);
 
-	vec3 normal = normalize(i->normal);
+	vec3 normal = (i->normal);
 	vec3 direction;
 	vec3 lightCol(0., 0., 0.);
 	vec3 lightPos;

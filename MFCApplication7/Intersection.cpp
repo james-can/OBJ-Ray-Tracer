@@ -40,7 +40,7 @@ Intersection::Intersection(Ray * r, std::vector<Triangle*> objs, float initMin, 
 		isHit = true;
 	}
 
-	normal = glm::normalize(hitobject->getNormal(intersectPoint));
+	normal = (hitobject->getNormal(intersectPoint));
 	myMat = hitobject->getMat();
 }
 
