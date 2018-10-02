@@ -53,6 +53,7 @@ newmtl wire_134006006
 
 newmtl wire_224198087
 	map_Kd tire_d.jpg
+	#map_Kd ViperModel\\tire_d.jpg
 	Ns 10
 	d 1
 	Tr 1

@@ -146,13 +146,15 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)/FreeImage;$(WindowsSdkDir)\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>.\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>FreeImage.lib</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib; FreeImagePlus.lib; uafxcw.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>uafxcw.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -198,6 +200,7 @@
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="FreeImage.h" />
+    <ClInclude Include="FreeImagePlus.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Intersection.h" />
     <ClInclude Include="Main.h" />
@@ -206,6 +209,7 @@
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Triangle.h" />
   </ItemGroup>

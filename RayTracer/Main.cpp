@@ -1,12 +1,13 @@
 
 // Main.cpp : implementation file
 //
-
-#include "stdafx.h"
 #include "MFCApplication7.h"
-#include "Main.h"
-#include "afxdialogex.h"
+#include "afxcoll.h"
+
 #include "FreeImage.h"
+#include "FreeImagePlus.h"
+
+#include "afxdialogex.h"
 #include "Triangle.h"
 #include "Ray.h"
 #include "Intersection.h"
@@ -24,7 +25,9 @@
 #include "OBJ_Loader.h"
 #include <direct.h>
 
+#include "texture.h"
 
+#include "Main.h"
 
 
 #ifdef _DEBUG
@@ -79,18 +82,15 @@ RayTracerDlg::RayTracerDlg(CWnd* pParent /*=NULL*/)
 
 //camera -.5 0 1 0 0 -1 0 1 0 45
 CProgressCtrl * prog;
-const int width = 640;
-const int height = 480;
+const int width = 1920;
+const int height = 1080;
 //0 -4 4 0 -1 0 0 1 1 45
 
-vec3 eyepos = vec3(90, 80, -92.7);
-vec3 lookAt = vec3(20, 25, 0);
+//vec3 eyepos = vec3(76, 52, 1986);
+vec3 eyepos = vec3(150, 90, -155.7);
+vec3 lookAt = vec3(0, 0, 0);
 vec3 upVec = vec3(0, 1, 0);
 float fov = 45;
-int currentVert = 0;
-int currentVertNorm = 0;
-int currentMaxVerts = 0;
-int currentMaxNorms = 0;
 
 void RayTracerDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -191,14 +191,16 @@ void RayTracerDlg::OnPaint()
 	}
 }
 
+
+
 void rightmultiply(const mat4 & M, std::stack<mat4> &transfstack)
 {
 	mat4 &T = transfstack.top();
 	T = T * M;
 }
 
-std::string path = "ViperModel\\";
-std::string fname = "obj";
+std::string path = "";
+std::string fname = "car-on-street";
 
 void renderImage(BYTE **pix) {
 	BYTE *pixels = (BYTE *)malloc(3 * width * height * sizeof(BYTE));
@@ -212,7 +214,7 @@ void renderImage(BYTE **pix) {
 	}
 	free(pix);
 	mkdir("Output");
-	FreeImage_Initialise();
+	
 	FIBITMAP *img = FreeImage_ConvertFromRawBits(pixels, width, height, width * 3, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
 	FreeImage_Save(FIF_PNG, img, ("output\\" + fname + ".png").c_str(), 0);
 	FreeImage_DeInitialise();
@@ -232,9 +234,11 @@ HCURSOR RayTracerDlg::OnQueryDragIcon()
 
 Node * root;
 Material * currentMat;
+texture * currentTexture;
 
 std::vector<Light*> lights(0);
 std::vector<Material*> materials(0);
+std::vector<texture*> textures(0);
 
 //std::vector<std::unique_ptr<SceneObject>> spheres;
 
@@ -259,13 +263,20 @@ float refractiveness = 0;
 float shininess = 20;
 
 
-vec3 ComputeLight(const vec3 direction, const vec3 lightcolor, const vec3 normal, const vec3 halfvec, Material * mat) {
-	vec3 diff = mat->diffuse;
-	vec3 spec = mat->specular;
-	float shin = mat->shininess;
+vec3 ComputeLight(const vec3 direction, const vec3 lightcolor, const vec3 normal, const vec3 halfvec, Intersection * i) {
+	vec3 diff = i->myMat->diffuse;
+	vec3 spec = i->myMat->specular;
+	float shin = i->myMat->shininess;
 
 	float nDotL = glm::dot(normal, direction);
-	vec3 lambert = diff * lightcolor * glm::max(nDotL, 0.f);
+	vec3 textureCol = vec3(1, 1, 1);
+
+	if (i->myMat->hasTexture) {
+		RGBQUAD pixel;
+		i->myMat->tex->fi.getPixelColor(i->textureCoord.x, i->textureCoord.y, &pixel);
+		textureCol = vec3(float(pixel.rgbRed), float(pixel.rgbGreen), float(pixel.rgbBlue)) / 256.f;
+	}
+	vec3 lambert = diff * lightcolor * textureCol * glm::max(nDotL, 0.f);
 
 	float nDotH = dot(normal, halfvec);
 	vec3 phong = spec * lightcolor * pow(glm::max(nDotH, 0.f), shin);
@@ -313,7 +324,7 @@ glm::vec3 FindColor(Intersection * i, int currentDepth) {
 		visibility = Intersection(shadowRay, currentTriangles, t).isHit ? 0 : 1;
 
 		half = normalize(direction + eyedirn);
-		lightCol += visibility * atten * ComputeLight((direction), lights[j]->col, normal, half, i->myMat);
+		lightCol += visibility * atten * ComputeLight((direction), lights[j]->col, normal, half, i);
 	}
 
 	lightCol += i->myMat->emissive + i->myMat->ambient;
@@ -334,9 +345,6 @@ glm::vec3 FindColor(Intersection * i, int currentDepth) {
 	}
 
 	lightCol += reflectedColor;
-
-	// uncomment the first return for interesting effect
-	//return (currentDepth > 1 ? i->myMat->specular : vec3(1.)) * FindColor(nextIntersect, lightCol + colorIn, currentDepth + 1);
 
 	// refraction calculation
 	if (i->myMat->refractiveness == 0)
@@ -375,7 +383,7 @@ glm::vec3 FindColor(Intersection * i, int currentDepth) {
 void RayTracerDlg::Raytrace(Camera * cam) {
 
 	BYTE **pixels = (BYTE **)malloc(height * sizeof(BYTE *));
-
+	
 	//#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < height; i++) {
 
@@ -406,10 +414,7 @@ void RayTracerDlg::Raytrace(Camera * cam) {
 	renderImage(pixels);
 }
 
-
-
 // Read from file
-
 void readobj3(std::string filename);
 UINT MyThreadProc(LPVOID test) {
 	transf.push(mat4(1.));
@@ -419,8 +424,6 @@ UINT MyThreadProc(LPVOID test) {
 	RayTracerDlg::Raytrace(new Camera(fov, eyepos, lookAt, upVec));
 	return 0;
 }
-
-
 
 void RayTracerDlg::OnBnClickedOk()
 {
@@ -444,21 +447,16 @@ bool readvals(std::stringstream &s, const int numvals, float * values)
 
 
 void readobj3(std::string filename) {
-	TRACE("\n READING OBJ");
-
-	// Give a default light, since obj doesn't seem to have one
-	// directional 0 1 -1 0.2 0.2 0.2
-	// point 0 0.44 -1.5 0.8 0.8 0.8
-	lights.push_back(new Light(vec4(1, -1, .63, 0.), vec3(1,1,1), attenuation));
-	lights.push_back(new Light(vec4(0,.5,.5,0), vec3(1, 1, 1), attenuation));
-	lights.push_back(new Light(vec4(0, 50, -100, 1), vec3(1, 1, 1), attenuation));
+	
+	FreeImage_Initialise();
+	lights.push_back(new Light(vec4(.01, .9, .13, 0.), vec3(1, 1, 1), attenuation));
+	//lights.push_back(new Light(vec4(.5, .5, .5, 0), vec3(1, 1, 1), attenuation));
 
 	objl::Loader Loader;
 
 	// Load .obj File
 	bool loadout = Loader.LoadFile(filename.c_str());
-
-	// Check to see if it loade
+	// Check to see if it loaded
 	// If so continue
 	if (loadout)
 	{
@@ -471,7 +469,6 @@ void readobj3(std::string filename) {
 			// See if this material has already been instantiated, if not then do so
 			int k = 0;
 			for (; k < materials.size(); k++) {
-				//TRACE("\ni: %d", i);
 				if (!strcmp(curMesh.MeshMaterial.name.c_str(), materials[k]->name.c_str())) {
 					currentMat = materials[k];
 					break;
@@ -482,32 +479,29 @@ void readobj3(std::string filename) {
 				diffuse = vec3(curMesh.MeshMaterial.Kd.X, curMesh.MeshMaterial.Kd.Y, curMesh.MeshMaterial.Kd.Z);
 				specular = vec3(curMesh.MeshMaterial.Ks.X, curMesh.MeshMaterial.Ks.Y, curMesh.MeshMaterial.Ks.Z);
 				shininess = curMesh.MeshMaterial.Ns;
-				currentMat = new Material(curMesh.MeshMaterial.name, ambient, emissive, diffuse, specular, transmission, shininess, refractiveness);
+				transmission = curMesh.MeshMaterial.Ni;
+				refractiveness = transmission < 1.01 ? 0 : 1;
+				
+				if (curMesh.MeshMaterial.map_Kd.length() != 0)
+				{
+					currentTexture = new texture;
+					fipImage input;
+					BOOL loaded = input.load(curMesh.MeshMaterial.map_Kd.c_str());
+
+					currentTexture->fi = input;
+					currentTexture->w = input.getWidth();
+					currentTexture->h = input.getHeight();
+					
+					currentMat = new Material(curMesh.MeshMaterial.name, ambient, emissive, diffuse, specular, transmission, shininess, refractiveness, currentTexture);
+					
+				}
+				else
+				{
+					currentMat = new Material(curMesh.MeshMaterial.name, ambient, emissive, diffuse, specular, transmission, shininess, refractiveness);
+				}
 				materials.push_back(currentMat);
 			}
-			//TRACE("\ncurrentMat name: %s ",currentMat->name.c_str());
-
-			
-			/*file << "Optical Density: " << curMesh.MeshMaterial.Ni << "\n";
-			file << "Dissolve: " << curMesh.MeshMaterial.d << "\n";
-			file << "Illumination: " << curMesh.MeshMaterial.illum << "\n";
-			file << "Ambient Texture Map: " << curMesh.MeshMaterial.map_Ka << "\n";
-			file << "Diffuse Texture Map: " << curMesh.MeshMaterial.map_Kd << "\n";
-			file << "Specular Texture Map: " << curMesh.MeshMaterial.map_Ks << "\n";
-			file << "Alpha Texture Map: " << curMesh.MeshMaterial.map_d << "\n";
-			file << "Bump Map: " << curMesh.MeshMaterial.map_bump << "\n";*/
-
-			for (int j = 0; j < curMesh.Vertices.size(); j++)
-			{
-				vertices.resize(++currentMaxVerts);
-				vertices[currentVert++] = vec3(curMesh.Vertices[j].Position.X, curMesh.Vertices[j].Position.Y, curMesh.Vertices[j].Position.Z);
-
-				vertNorms.resize(++currentMaxNorms);
-				vertNorms[currentVertNorm++] = normalize(vec3(curMesh.Vertices[j].Normal.X, curMesh.Vertices[j].Normal.Y, curMesh.Vertices[j].Normal.Z));
-				//TODO: set texture coords
-				//curMesh.Vertices[j].TextureCoordinate.X << ", " << curMesh.Vertices[j].TextureCoordinate.Y << ")\n";
-			}
-
+		
 			for (int j = 0; j < curMesh.Indices.size(); j += 3)
 			{
 				int a = curMesh.Indices[j], b = curMesh.Indices[j + 1], c = curMesh.Indices[j + 2];
@@ -520,15 +514,37 @@ void readobj3(std::string filename) {
 				vec3 norm2 = vec3(curMesh.Vertices[b].Normal.X, curMesh.Vertices[b].Normal.Y, curMesh.Vertices[b].Normal.Z);
 				vec3 norm3 = vec3(curMesh.Vertices[c].Normal.X, curMesh.Vertices[c].Normal.Y, curMesh.Vertices[c].Normal.Z);
 
-				triangles.push_back(new Triangle(vert1, vert2, vert3, norm1, norm2, norm3, currentMat, transf.top(), false));
+				if (curMesh.MeshMaterial.map_Kd.length() != 0) {
+
+
+					RGBQUAD pixel;
+
+					int xPixel = int(curMesh.Vertices[a].TextureCoordinate.X * currentMat->tex->w) ;
+					int yPixel = int(curMesh.Vertices[a].TextureCoordinate.Y * currentMat->tex->h) ;
+					glm::vec2 tex1 = glm::vec2(xPixel, yPixel);
+
+					xPixel = int(curMesh.Vertices[b].TextureCoordinate.X * currentMat->tex->w) - 1;
+					yPixel = int(curMesh.Vertices[b].TextureCoordinate.Y * currentMat->tex->h) - 1;
+					glm::vec2 tex2 = glm::vec2(xPixel, yPixel);
+
+					xPixel = int(curMesh.Vertices[c].TextureCoordinate.X * currentMat->tex->w) - 1;
+					yPixel = int(curMesh.Vertices[c].TextureCoordinate.Y * currentMat->tex->h) - 1;
+					glm::vec2 tex3 = glm::vec2(xPixel, yPixel);
+
+					triangles.push_back(new Triangle(vert1, vert2, vert3, norm1, norm2, norm3, tex1, tex2, tex3, currentMat, transf.top(), false));
+				}
+				else {
+					triangles.push_back(new Triangle(vert1, vert2, vert3, norm1, norm2, norm3, currentMat, transf.top(), false));
+				}
 			}
 
 		}
-
+		
 	}
 	// If not output an error
 	else
 	{
+		TRACE("\nFailed to load obj");
 		// Create/Open e1Out.txt
 		std::ofstream file("e1Out.txt");
 

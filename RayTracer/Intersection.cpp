@@ -1,8 +1,9 @@
-#include "Intersection.h"
+
 #include <vector>
 #include<iostream>
 
-#include "stdafx.h"
+
+#include "Intersection.h"
 Intersection::Intersection(Ray * r, std::vector<Triangle*> objs, float initMin) {
 	this->~Intersection();
 	std::vector<SceneObject*> helperObjs;
@@ -41,6 +42,7 @@ Intersection::Intersection(Ray * r, std::vector<Triangle*> objs, float initMin, 
 	}
 
 	normal = (hitobject->getNormal(intersectPoint));
+	textureCoord = hitobject->getTextureCoord();
 	myMat = hitobject->getMat();
 }
 

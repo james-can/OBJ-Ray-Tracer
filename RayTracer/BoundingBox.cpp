@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "BoundingBox.h"
 #include "glm/glm.hpp"
 

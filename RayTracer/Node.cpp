@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Node.h"
 #define MAX_TREE_DEPTH 5
 

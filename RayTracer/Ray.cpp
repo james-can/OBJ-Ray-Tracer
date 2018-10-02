@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Ray.h"
 
 const float PI = 3.14159265359;

@@ -2,7 +2,7 @@
 // MFCApplication7.cpp : Defines the class behaviors for the application.
 //
 
-#include "stdafx.h"
+
 #include "MFCApplication7.h"
 #include "Main.h"
 

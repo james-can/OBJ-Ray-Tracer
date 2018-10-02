@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "Triangle.h"
-
+#include "fstream"
 
 
 Triangle::Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, Material * m, glm::mat4 t, bool flip)
 {
 	hasVertNorms = false;
+	hasTexCoords = false;
 	A = a;
 	B = b;
 	C = c;
@@ -17,6 +18,7 @@ Triangle::Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, Material * m, glm::mat
 Triangle::Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 aNorm, glm::vec3 bNorm, glm::vec3 cNorm, Material * m, glm::mat4 t, bool flip)
 {
 	hasVertNorms = true;
+	hasTexCoords = false;
 	A = a;
 	B = b;
 	C = c;
@@ -27,6 +29,25 @@ Triangle::Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 aNorm, glm::
 	transform = t;
 	flipNormal = flip;
 }
+
+Triangle::Triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 aNorm, glm::vec3 bNorm, glm::vec3 cNorm, glm::vec2 tex1, glm::vec2 tex2, glm::vec2 tex3, Material * m, glm::mat4 t, bool flip)
+{
+	vt1 = tex1;
+	vt2 = tex2;
+	vt3 = tex3;
+	hasVertNorms = true;
+	hasTexCoords = true;
+	A = a;
+	B = b;
+	C = c;
+	Anorm = aNorm;
+	Bnorm = bNorm;
+	Cnorm = cNorm;
+	material = m;
+	transform = t;
+	flipNormal = flip;
+}
+
 
 Material* Triangle::getMat() {
 	return material;
@@ -56,6 +77,18 @@ glm::vec3 Triangle::getNormal(glm::vec3 intersectionPoint)
 
 
 }
+
+glm::vec2 Triangle::getTextureCoord() {
+
+	
+	if (hasTexCoords) {
+		texCoord = (alpha * vt1 + beta * vt2 + gamma * vt3);
+		return texCoord;
+	}
+
+	return glm::vec2(1, 1);
+}
+
 glm::vec3 Triangle::getNormal()
 {
 	return getNormal(glm::vec3());
@@ -63,6 +96,10 @@ glm::vec3 Triangle::getNormal()
 
 glm::vec3 Triangle::planeNormal() {
 	return flipNormal ? glm::normalize(glm::cross(C - A, B - A)) : glm::normalize(glm::cross(B - A, C - A));
+}
+
+void Triangle::closeDebugFile() {
+	
 }
 
 float Triangle::Intersect(Ray * r) {
@@ -94,7 +131,7 @@ float Triangle::Intersect(Ray * r) {
 	if (beta < 0)
 		return FLT_MAX;
 
-	alpha = glm::dot(glm::cross(C - B, P - B), N) / denom;
+	alpha = 1 - beta - gamma;
 
 	return alpha > 0 ? t : FLT_MAX; 
 }
