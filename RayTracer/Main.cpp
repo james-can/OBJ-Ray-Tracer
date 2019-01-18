@@ -396,8 +396,8 @@ void RayTracerDlg::Raytrace(Camera * cam) {
 
 			// Ray origin is shot from a random location from inside the pixel 
 			// with a max of .25 pixels away from the center of pixel
-			int randX = rand() % 50 + 25;
-			int randY = rand() % 50 + 25;
+			int randX = rand() % 75 + 25;
+			int randY = rand() % 75 + 25;
 
 			Ray * ray = new Ray(cam, float(i) + float(randX) * .01, float(j / 3) + float(randY) * .01, width, height);
 
@@ -450,7 +450,7 @@ void readobj3(std::string filename) {
 	
 	FreeImage_Initialise();
 	lights.push_back(new Light(vec4(.01, .9, .13, 0.), vec3(1, 1, 1), attenuation));
-	//lights.push_back(new Light(vec4(.5, .5, .5, 0), vec3(1, 1, 1), attenuation));
+	lights.push_back(new Light(vec4(0., 1., 0., 1.), vec3(1, 1, 1), attenuation));
 
 	objl::Loader Loader;
 
