@@ -450,7 +450,7 @@ void readobj3(std::string filename) {
 	
 	FreeImage_Initialise();
 	lights.push_back(new Light(vec4(.01, .9, .13, 0.), vec3(1, 1, 1), attenuation));
-	lights.push_back(new Light(vec4(0., 1., 0., 1.), vec3(1, 1, 1), attenuation));
+	//lights.push_back(new Light(vec4(0., 1., 0., 1.), vec3(1, 1, 1), attenuation));
 
 	objl::Loader Loader;
 
