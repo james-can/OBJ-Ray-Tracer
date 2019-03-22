@@ -6,12 +6,12 @@ Here are some sample outputs:
 
 With shadows, no texture on car:
 
-![alt text](RayTracer/Output/car-on-street.png)
+![alt text](https://github.com/james-can/OBJ-Ray-Tracer/blob/master/RayTracer/Output/car-on-street.png)
 
 No shadows, with texture:
 
-![alt text](RayTracer/Output/car-on-street1.png)
+![alt text](https://github.com/james-can/OBJ-Ray-Tracer/blob/master/RayTracer/Output/car-on-street1.png)
 
 No shadows or texture:
 
-![alt text](RayTracer/Output/car-on-street2.png)
+![alt text](https://github.com/james-can/OBJ-Ray-Tracer/blob/master/RayTracer/Output/car-on-street2.png)
