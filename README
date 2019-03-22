@@ -2,3 +2,16 @@ As of now the name of the obj to be rendered as well as output file are hardcode
 
 Needs to be run on x86 platform.
 
+Here are some sample outputs:
+
+With shadows, no texture on car:
+
+![alt text](RayTracer/Output/car-on-street.png)
+
+No shadows, with texture:
+
+![alt text](RayTracer/Output/car-on-street1.png)
+
+No shadows or texture:
+
+![alt text](RayTracer/Output/car-on-street2.png)
