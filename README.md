@@ -15,3 +15,7 @@ No shadows, with texture:
 No shadows or texture:
 
 ![car-on-street2](https://user-images.githubusercontent.com/14156313/54844207-4e172d00-4ca4-11e9-9193-866700af26fa.png)
+
+Relies on the following library to parse obj and mtl files:
+
+https://github.com/Bly7/OBJ-Loader
